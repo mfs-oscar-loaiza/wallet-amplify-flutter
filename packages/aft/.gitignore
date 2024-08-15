@@ -1,0 +1,9 @@
+# Files and directories created by pub.
+.dart_tool/
+.packages
+
+# Conventional directory for build output.
+build/
+
+# Repo state (generate with `aft save-repo-state`)
+repo_state.g.dart

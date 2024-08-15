@@ -1,0 +1,17 @@
+name: example_common_example
+description: Example of common_example
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.3.0
+
+dependencies:
+  example_common:
+    path: ../
+
+dev_dependencies:
+  amplify_lints:
+    path: ../../amplify_lints
+  build_runner: ^2.4.0
+  build_web_compilers: ^4.0.0

@@ -1,0 +1,108 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+import 'dart:convert';
+
+import 'package:amplify_core/src/types/models/auth_rule.dart';
+import 'package:amplify_core/src/types/models/model_association.dart';
+import 'package:amplify_core/src/types/models/model_field_type.dart';
+import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
+
+@immutable
+class ModelField {
+  const ModelField({
+    required this.name,
+    required this.type,
+    required this.isRequired,
+    this.isArray = false,
+    this.isReadOnly = false,
+    this.association,
+    this.authRules,
+  });
+
+  // Name of the field is the name of the instance variable
+  // of the Model class.
+  final String name;
+
+  // Type of the field is the data type of the instance variables
+  // of the Model class.
+  final ModelFieldType type;
+
+  // If the field is a required or an optional field
+  final bool isRequired;
+
+  final bool isArray;
+
+  final bool isReadOnly;
+
+  final ModelAssociation? association; //opt
+
+  // An array of rules for owner based authorization
+  final List<AuthRule>? authRules;
+
+  ModelField copyWith({
+    String? name,
+    ModelFieldType? type,
+    bool? isRequired,
+    bool? isArray,
+    bool? isReadOnly,
+    ModelAssociation? association,
+    List<AuthRule>? authRules,
+  }) {
+    return ModelField(
+      name: name ?? this.name,
+      type: type ?? this.type,
+      isRequired: isRequired ?? this.isRequired,
+      isArray: isArray ?? this.isArray,
+      isReadOnly: isReadOnly ?? this.isReadOnly,
+      association: association ?? this.association,
+      authRules: authRules ?? this.authRules,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    final map = {
+      'name': name,
+      'type': type.toMap(),
+      'isRequired': isRequired,
+      'isArray': isArray,
+      'isReadOnly': isReadOnly,
+      'association': association?.toMap(),
+      'authRules': authRules?.map((x) => x.toMap()).toList(),
+    };
+    return Map<String, dynamic>.from(map)
+      ..removeWhere((k, dynamic v) => v == null);
+  }
+
+  String toJson() => json.encode(toMap());
+
+  @override
+  String toString() {
+    return 'ModelField(name: $name, type: $type, isRequired: $isRequired, isArray: $isArray, isReadOnly: $isReadOnly, association: $association, authRules: $authRules)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    final listEquals = const DeepCollectionEquality().equals;
+
+    return other is ModelField &&
+        other.name == name &&
+        other.type == type &&
+        other.isRequired == isRequired &&
+        other.isArray == isArray &&
+        other.isReadOnly == isReadOnly &&
+        listEquals(other.authRules, authRules);
+  }
+
+  @override
+  int get hashCode {
+    return name.hashCode ^
+        type.hashCode ^
+        isRequired.hashCode ^
+        isArray.hashCode ^
+        isReadOnly.hashCode ^
+        authRules.hashCode;
+  }
+}

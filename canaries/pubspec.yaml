@@ -1,0 +1,27 @@
+name: amplified_todo
+publish_to: none
+
+environment:
+  sdk: ^3.3.0
+  flutter: ">=3.19.0"
+
+dependencies:
+  amplify_analytics_pinpoint: ^2.0.0
+  amplify_api: ^2.0.0
+  amplify_auth_cognito: ^2.0.0
+  amplify_authenticator: ^2.0.0
+  amplify_datastore: ^2.0.0-supports-only-mobile.0
+  amplify_flutter: ^2.0.0
+  amplify_storage_s3: ^2.0.0
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  amplify_lints: ^2.0.3
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

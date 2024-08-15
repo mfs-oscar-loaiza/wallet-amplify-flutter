@@ -1,0 +1,12 @@
+include: package:amplify_lints/library.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+  errors:
+    implementation_imports: error    
+
+
+linter:
+  rules:
+    public_member_api_docs: false

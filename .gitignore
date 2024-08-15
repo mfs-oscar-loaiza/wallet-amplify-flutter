@@ -1,0 +1,47 @@
+.dart_tool/
+.DS_Store
+build/
+**/ios/.generated/
+**/ios/.symlinks/
+**/android/.settings/
+pubspec.lock
+Podfile.lock
+*.iml
+*.jar
+Podfile.lock
+**/unpub-packages/
+**/coverage/
+**/test-results/
+.test_coverage.dart
+.last_build_id
+temp/
+.fvm/
+.packages
+pubspec_overrides.yaml
+doc/api/
+**/doc/api/
+
+# IDEs
+.idea/
+.vscode/
+.atom/
+.idea/
+
+
+# amplify resources from example apps
+**/example/amplify/
+
+node_modules/
+aws-exports.js
+awsconfiguration.json
+amplifyconfiguration.dart
+amplify-build-config.json
+amplify-gradle-config.json
+amplifytools.xcconfig
+amplify_outputs.dart
+
+# Smithy
+.smithy.lsp.log
+
+# Custom Actions output
+**/*.cjs.deps

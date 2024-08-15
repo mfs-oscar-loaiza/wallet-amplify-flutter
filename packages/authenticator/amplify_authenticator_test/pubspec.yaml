@@ -1,0 +1,22 @@
+name: amplify_authenticator_test
+description: A set of a utilities for testing amplify_authenticator
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.3.0
+  flutter: ">=3.19.0"
+
+dependencies:
+  amplify_authenticator: any
+  amplify_flutter: any
+  amplify_integration_test:
+    path: ../../test/amplify_integration_test
+  flutter:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+
+dev_dependencies:
+  amplify_lints:
+    path: ../../amplify_lints

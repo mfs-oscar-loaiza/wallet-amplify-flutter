@@ -1,0 +1,7 @@
+apis:
+  com.amazonaws.pinpoint:
+    - GetEndpoint
+    - GetInAppMessages
+    - PutEvents
+    - UpdateEndpoint
+    - UpdateEndpointsBatch

@@ -1,0 +1,31 @@
+apis:
+  com.amazonaws.cognitoidentityprovider:
+    - AssociateSoftwareToken
+    - ChangePassword
+    - ConfirmDevice
+    - ConfirmForgotPassword
+    - ConfirmSignUp
+    - DeleteUser
+    - ForgetDevice
+    - ForgotPassword
+    - GetDevice
+    - GetUser
+    - GetUserAttributeVerificationCode
+    - GlobalSignOut
+    - InitiateAuth
+    - ListDevices
+    - ResendConfirmationCode
+    - RespondToAuthChallenge
+    - RevokeToken
+    - SetUserMFAPreference
+    - SignUp
+    - UpdateDeviceStatus
+    - UpdateUserAttributes
+    - VerifySoftwareToken
+    - VerifyUserAttribute
+  com.amazonaws.cognitoidentity:
+    - GetCredentialsForIdentity
+    - GetId
+
+plugins:
+  - tool/generate_sdk_exceptions.dart

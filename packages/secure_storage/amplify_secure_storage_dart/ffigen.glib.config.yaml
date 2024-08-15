@@ -1,0 +1,46 @@
+# ffigen config for glib bindings.
+#
+# To regenerate, run: `make ffi_bindings_linux`
+
+output: "lib/src/ffi/glib/glib.bindings.g.dart"
+name: "Glib"
+description: "Bindings to glib"
+headers:
+  entry-points:
+    - "external/glib/glib/glib.h"
+    - "external/glib/glib/glib-object.h"
+    - "external/glib/gio/gio.h"
+compiler-opts:
+  - "-I./external/glib/"
+functions:
+  include:
+    - g_hash_table_new
+    - g_hash_table_insert
+    - g_hash_table_destroy
+structs:
+  include:
+    - _GError
+    - _GCancellable
+    - _GObject
+  rename:
+    "_GError": "GError"
+    "_GCancellable": "GCancellable"
+    "_GObject": "GObject"
+enums:
+  include:
+    - NONE
+globals:
+  include:
+    - NONE
+macros:
+  include:
+    - NONE
+unions:
+  include:
+    - NONE
+unnamed-enums:
+  include:
+    - NONE
+comments: false
+preamble: |
+    // ignore_for_file: camel_case_types, non_constant_identifier_names, require_trailing_commas, sort_constructors_first

@@ -1,0 +1,31 @@
+name: Setup Firefox
+description: Install Firefox and Geckodriver
+
+inputs:
+  GITHUB_TOKEN:
+    description: The GITHUB_TOKEN secret provided by GitHub.
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: browser-actions/setup-firefox@2904820ff2e2cfeadf033d26ce136d65509ce7fc # 1.1.0
+    - shell: bash
+      run: firefox --version
+    - shell: bash
+      run: |
+        # Make authenticated request to avoid rate limiting
+        VERSION=`curl -s -H 'Authorization: Bearer ${{ inputs.GITHUB_TOKEN }}' https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r .tag_name`
+        URL="https://github.com/mozilla/geckodriver/releases/download/$VERSION/geckodriver-$VERSION-linux64.tar.gz"
+        curl -Lo geckodriver.tar.gz $URL
+        tar -xvzf geckodriver.tar.gz
+        chmod +x geckodriver
+        sudo mv geckodriver /usr/local/bin
+    - shell: bash
+      run: geckodriver --version
+    - name: Virtual X Display
+      shell: bash
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        echo "DISPLAY=:99" >> $GITHUB_ENV
+        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &

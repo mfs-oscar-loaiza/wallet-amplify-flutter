@@ -1,0 +1,176 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+import 'package:code_builder/code_builder.dart';
+import 'package:smithy/ast.dart';
+import 'package:smithy_codegen/smithy_codegen.dart';
+import 'package:smithy_codegen/src/generator/types.dart';
+import 'package:smithy_codegen/src/util/shape_ext.dart';
+import 'package:smithy_codegen/src/util/symbol_ext.dart';
+
+/// Converts shapes into symbols or [Reference]s.
+///
+/// The Smithy model notes that all shapes
+class SymbolVisitor extends CategoryShapeVisitor<Reference> {
+  const SymbolVisitor(this.context);
+
+  final CodegenContext context;
+
+  @override
+  Reference listShape(ListShape shape, [Shape? parent]) {
+    final valueType = shape.member.accept(this, shape);
+    final type = DartTypes.builtValue.builtList(valueType);
+    final builder = DartTypes.builtValue.listBuilder(valueType);
+    context.builderFactories[type.unboxed] = builder.property('new');
+    if (context.symbolOverrideFor(shape) case final override?) {
+      return override;
+    }
+    return type;
+  }
+
+  @override
+  Reference mapShape(MapShape shape, [Shape? parent]) {
+    final keySymbol = context.symbolFor(shape.key.target, shape).unboxed;
+    final valueShape = context.shapeFor(shape.value.target);
+    final valueShapeType = valueShape.getType();
+
+    // Ensure we add the builders for these to the context's `builderFactories`
+    // since they will not be available to serializers otherwise.
+    //
+    // Use `BuiltSetMultimap` and `BuiltListMultimap` for Maps with collection
+    // value types. This changes the signature from BuiltMap<String, List<String>>,
+    // for example to BuiltListMultimap<String, String>, so we need to use
+    // the value's member's symbol instead of the value's symbol.
+    switch (valueShapeType) {
+      case ShapeType.list:
+        final listShape = valueShape as ListShape;
+        final valueSymbol = context
+            .symbolFor(listShape.member.target, listShape)
+            .withBoxed(listShape.member.isNullable(context, listShape));
+        final type =
+            DartTypes.builtValue.builtListMultimap(keySymbol, valueSymbol);
+        final builder =
+            DartTypes.builtValue.listMultimapBuilder(keySymbol, valueSymbol);
+        context.builderFactories[type.unboxed] = builder.property('new');
+        return type;
+      case ShapeType.set:
+        final valueSymbol = context
+            .symbolFor((valueShape as SetShape).member.target, valueShape)
+            .unboxed; // Sets cannot have nullable values
+        final type =
+            DartTypes.builtValue.builtSetMultimap(keySymbol, valueSymbol);
+        final builder =
+            DartTypes.builtValue.setMultimapBuilder(keySymbol, valueSymbol);
+        context.builderFactories[type.unboxed] = builder.property('new');
+        return type;
+      default:
+        break;
+    }
+
+    final valueSymbol = valueShape
+        .accept(this, shape)
+        .withBoxed(valueShape.isNullable(context, shape));
+    final type = DartTypes.builtValue.builtMap(keySymbol, valueSymbol);
+    final builder = DartTypes.builtValue.mapBuilder(keySymbol, valueSymbol);
+    context.builderFactories[type.unboxed] = builder.property('new');
+    if (context.symbolOverrideFor(shape) case final override?) {
+      return override;
+    }
+    return type;
+  }
+
+  @override
+  Reference memberShape(MemberShape shape, [Shape? parent]) {
+    return context
+        .symbolFor(shape.target, parent)
+        .withBoxed(shape.isNullable(context, parent));
+  }
+
+  @override
+  Reference operationShape(OperationShape shape, [Shape? parent]) {
+    final library = shape.smithyLibrary(context);
+    return Reference(shape.dartName(context), library.libraryUrl);
+  }
+
+  @override
+  Reference resourceShape(ResourceShape shape, [Shape? parent]) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Reference serviceShape(ServiceShape shape, [Shape? parent]) {
+    // Returns the service client's shape.
+    return Reference(
+      context.serviceClientName,
+      context.serviceClientLibrary.libraryUrl,
+    );
+  }
+
+  @override
+  Reference setShape(SetShape shape, [Shape? parent]) {
+    final valueType = shape.member.accept(this, shape).unboxed;
+    final type = DartTypes.builtValue.builtSet(valueType);
+    final builder = DartTypes.builtValue.setBuilder(valueType);
+    context.builderFactories[type.unboxed] = builder.property('new');
+    if (context.symbolOverrideFor(shape) case final override?) {
+      return override;
+    }
+    return type;
+  }
+
+  @override
+  Reference stringShape(StringShape shape, [Shape? parent]) {
+    if (context.symbolOverrideFor(shape) case final override?) {
+      return override;
+    }
+    final mediaType = shape.getTrait<MediaTypeTrait>()?.value;
+    if (mediaType != null) {
+      switch (mediaType) {
+        case 'application/json':
+          return DartTypes.builtValue.jsonObject;
+      }
+    }
+    return super.stringShape(shape);
+  }
+
+  @override
+  Reference structureShape(StructureShape shape, [Shape? parent]) {
+    if (context.symbolOverrideFor(shape) case final override?) {
+      return override;
+    }
+    return createSymbol(shape);
+  }
+
+  @override
+  Reference unionShape(UnionShape shape, [Shape? parent]) {
+    if (context.symbolOverrideFor(shape) case final override?) {
+      return override;
+    }
+    return createSymbol(shape);
+  }
+
+  /// Creates a new symbol from shape, with its own definition file.
+  Reference createSymbol(Shape shape) {
+    return TypeReference(
+      (t) => t
+        ..symbol = shape.escapedClassName(context)
+        ..url = shape.libraryUrl(context),
+    );
+  }
+
+  @override
+  Reference simpleShape(SimpleShape shape, [Shape? parent]) {
+    if (context.symbolOverrideFor(shape) case final override?) {
+      return override;
+    }
+    return shape.typeReference;
+  }
+
+  @override
+  Reference enumShape(EnumShape shape, [Shape? parent]) {
+    if (context.symbolOverrideFor(shape) case final override?) {
+      return override;
+    }
+    return createSymbol(shape);
+  }
+}
